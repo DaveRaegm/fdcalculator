@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FD Interest Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .fd-header, .fd-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+    .fd-header {
+      position: sticky;
+      top: 0;
+      background-color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-weight: bold;
+      z-index: 10;
+    }
+    .fd-row {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .fd-row input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .fd-row .result {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #add-row {
+      display: block;
+      margin: 1rem auto;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #add-row:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>FD Compound Interest Calculator</h1>
+
+    <div class="fd-header">
+      <div>Principal (P)</div>
+      <div>Rate (%)</div>
+      <div>Time (Years)</div>
+      <div>Compound/Year (N)</div>
+      <div>Total Amount</div>
+    </div>
+
+    <div id="fd-container"></div>
+    <button id="add-row">Add FD</button>
+  </div>
+
+  <script>
+    function calculateCompoundInterest(P, R, T, N) {
+      return P * Math.pow((1 + (R / (100 * N))), N * T);
+    }
+
+    function createFDRow() {
+      const row = document.createElement('div');
+      row.className = 'fd-row';
+
+      row.innerHTML = `
+        <input type="number" placeholder="Principal (P)" class="principal" />
+        <input type="number" placeholder="Rate (%)" class="rate" step="0.01" />
+        <input type="number" placeholder="Time (Years)" class="time" />
+        <input type="number" placeholder="Compound/Year (N)" class="compound" />
+        <div class="result">₹ 0.00</div>
+      `;
+
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => updateRowResult(row));
+      });
+
+      document.getElementById('fd-container').appendChild(row);
+    }
+
+    function updateRowResult(row) {
+      const P = parseFloat(row.querySelector('.principal').value) || 0;
+      const R = parseFloat(row.querySelector('.rate').value) || 0;
+      const T = parseFloat(row.querySelector('.time').value) || 0;
+      const N = parseFloat(row.querySelector('.compound').value) || 1;
+
+      const result = calculateCompoundInterest(P, R, T, N);
+      row.querySelector('.result').textContent = `₹ ${result.toFixed(2)}`;
+    }
+
+    document.getElementById('add-row').addEventListener('click', createFDRow);
+
+    // Add initial row
+    createFDRow();
+  </script>
+</body>
+</html>
