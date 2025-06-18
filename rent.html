@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rental Yield Calculator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6f8;
+      margin: 0;
+      padding: 2rem;
+      color: #2c2c2e;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #1c1c1e;
+    }
+
+    .header, .row {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1.2fr 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .header {
+      background: #ececec;
+      padding: 1rem;
+      border-radius: 12px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .row {
+      background: #fff;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .row:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .field input {
+      padding: 0.55rem 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fafafa;
+      transition: border 0.2s;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #007aff;
+      background-color: #fff;
+    }
+
+    .readonly {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #007aff;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .actions button {
+      background: #dfe3e8;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .actions button:hover {
+      background: #c9ccd1;
+    }
+
+    #add-row {
+      display: block;
+      margin: 2rem auto 0;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,122,255,0.2);
+      transition: background 0.3s;
+    }
+
+    #add-row:hover {
+      background: #005fd1;
+    }
+
+    @media (max-width: 768px) {
+      .header, .row {
+        grid-template-columns: 1fr;
+      }
+      .actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rental Yield Calculator</h1>
+
+    <div class="header">
+      <div>Property Cost</div>
+      <div>Monthly Rent</div>
+      <div>Yearly Rent</div>
+      <div>Yield (%)</div>
+      <div>Actions</div>
+    </div>
+
+    <div id="rows-container"></div>
+
+    <button id="add-row">+ Add Property</button>
+  </div>
+
+  <script>
+    function createRentalRow(data = {}) {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const cost = data.cost || '';
+      const rent = data.rent || '';
+
+      row.innerHTML = `
+        <div class="field"><input type="number" placeholder="₹ Property Cost" class="cost" value="${cost}" /></div>
+        <div class="field"><input type="number" placeholder="₹ Monthly Rent" class="rent" value="${rent}" /></div>
+        <div class="readonly yearly">₹ 0</div>
+        <div class="readonly yield">0%</div>
+        <div class="actions"><button class="duplicate-btn">Duplicate</button></div>
+      `;
+
+      // Add input listeners
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => updateRow(row));
+      });
+
+      // Duplicate button
+      row.querySelector('.duplicate-btn').addEventListener('click', () => {
+        const costVal = row.querySelector('.cost').value;
+        const rentVal = row.querySelector('.rent').value;
+        createRentalRow({ cost: costVal, rent: rentVal });
+      });
+
+      document.getElementById('rows-container').appendChild(row);
+      updateRow(row);
+    }
+
+    function updateRow(row) {
+      const cost = parseFloat(row.querySelector('.cost').value) || 0;
+      const rent = parseFloat(row.querySelector('.rent').value) || 0;
+
+      const yearlyRent = rent * 12;
+      const yieldVal = cost > 0 ? (yearlyRent * 100) / cost : 0;
+
+      row.querySelector('.yearly').textContent = `₹ ${yearlyRent.toLocaleString()}`;
+      row.querySelector('.yield').textContent = `${yieldVal.toFixed(2)}%`;
+    }
+
+    document.getElementById('add-row').addEventListener('click', () => createRentalRow());
+
+    // Initial row
+    createRentalRow();
+  </script>
+</body>
+</html>
