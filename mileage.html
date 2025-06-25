@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Mileage Cost Calculator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6f8;
+      margin: 0;
+      padding: 2rem;
+      color: #2c2c2e;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .field {
+      flex: 1;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+      color: #555;
+    }
+
+    .field input {
+      padding: 0.6rem 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fafafa;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #007aff;
+      background-color: #fff;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .result-box {
+      background: #f9f9fa;
+      padding: 0.75rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .result-box span {
+      display: block;
+      font-weight: 600;
+      color: #007aff;
+    }
+
+    .actions {
+      text-align: right;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      border: none;
+      background: #007aff;
+      color: white;
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    .btn:hover {
+      background: #005fd1;
+    }
+
+    #add-row {
+      display: block;
+      margin: 2rem auto 0;
+      font-size: 1rem;
+      padding: 0.75rem 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Vehicle Mileage Cost Calculator</h1>
+    <div id="cards-container"></div>
+    <button id="add-row" class="btn">+ Add Vehicle</button>
+  </div>
+
+  <script>
+    function createCard(data = {}) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      card.innerHTML = `
+        <div class="row">
+          <div class="field">
+            <label>Daily Running (km)</label>
+            <input type="number" class="daily" value="${data.daily || ''}">
+          </div>
+          <div class="field">
+            <label>Fuel Cost (₹/Litre)</label>
+            <input type="number" class="fuel" value="${data.fuel || ''}">
+          </div>
+          <div class="field">
+            <label>Mileage (km/L)</label>
+            <input type="number" class="mileage" value="${data.mileage || ''}">
+          </div>
+        </div>
+
+        <div class="results">
+          <div class="result-box">Cost per Km: <span class="cost-per-km">₹0.00</span></div>
+          <div class="result-box">Monthly Km: <span class="km-month">0</span></div>
+          <div class="result-box">Yearly Km: <span class="km-year">0</span></div>
+          <div class="result-box">Cost/Day: <span class="cost-day">₹0.00</span></div>
+          <div class="result-box">Cost/Month: <span class="cost-month">₹0</span></div>
+          <div class="result-box">Cost/Year: <span class="cost-year">₹0</span></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn duplicate">Duplicate</button>
+          <button class="btn remove">Remove</button>
+        </div>
+      `;
+
+      card.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => updateCard(card));
+      });
+
+      card.querySelector('.duplicate').addEventListener('click', () => {
+        const daily = card.querySelector('.daily').value;
+        const fuel = card.querySelector('.fuel').value;
+        const mileage = card.querySelector('.mileage').value;
+        createCard({ daily, fuel, mileage });
+      });
+
+      card.querySelector('.remove').addEventListener('click', () => {
+        card.remove();
+      });
+
+      document.getElementById('cards-container').appendChild(card);
+      updateCard(card);
+    }
+
+    function updateCard(card) {
+      const daily = parseFloat(card.querySelector('.daily').value) || 0;
+      const fuel = parseFloat(card.querySelector('.fuel').value) || 0;
+      const mileage = parseFloat(card.querySelector('.mileage').value) || 0;
+
+      const costPerKm = mileage > 0 ? fuel / mileage : 0;
+      const kmPerMonth = daily * 30;
+      const kmPerYear = daily * 365;
+
+      const costPerDay = daily * costPerKm;
+      const costPerMonth = costPerDay * 30;
+      const costPerYear = costPerDay * 365;
+
+      card.querySelector('.cost-per-km').textContent = `₹${costPerKm.toFixed(2)}`;
+      card.querySelector('.km-month').textContent = kmPerMonth.toFixed(0);
+      card.querySelector('.km-year').textContent = kmPerYear.toFixed(0);
+      card.querySelector('.cost-day').textContent = `₹${costPerDay.toFixed(2)}`;
+      card.querySelector('.cost-month').textContent = `₹${costPerMonth.toFixed(0)}`;
+      card.querySelector('.cost-year').textContent = `₹${costPerYear.toFixed(0)}`;
+    }
+
+    document.getElementById('add-row').addEventListener('click', () => createCard());
+
+    createCard(); // Initial card
+  </script>
+</body>
+</html>
