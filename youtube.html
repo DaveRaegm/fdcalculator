@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Earnings Calculator</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f0f0f5;
+      margin: 0;
+      padding: 2rem;
+      color: #1c1c1e;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 1rem;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #111;
+    }
+    .card {
+      background: #ffffffcc;
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: box-shadow 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .input-group input, .input-group select {
+      flex: 1 1 250px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .result-box {
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1rem;
+      color: #333;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .result-box span {
+      display: block;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      color: #007aff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>YouTube Earnings Calculator</h1>
+
+    <div class="card">
+      <div class="input-group">
+        <input type="number" id="rpmInput" placeholder="Enter RPM (per 1000 views)">
+        <select id="currency">
+          <option value="$">$ (USD)</option>
+          <option value="₹">₹ (INR)</option>
+        </select>
+      </div>
+      <div class="results-grid">
+        <div class="result-box">1K Views<span class="v1k">—</span></div>
+        <div class="result-box">10K (10 Thousand) Views<span class="v10k">—</span></div>
+        <div class="result-box">1 Lac (100K) Views<span class="v100k">—</span></div>
+        <div class="result-box">10 Lac (1M) Views<span class="v1m">—</span></div>
+        <div class="result-box">1 Crore (10M) Views<span class="v10m">—</span></div>
+        <div class="result-box">10 Crore (100M) Views<span class="v100m">—</span></div>
+        <div class="result-box">100 Crore (1B) Views<span class="v1b">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem;">Custom Calculation</h3>
+      <div class="input-group">
+        <input type="number" id="customRPM" placeholder="Enter RPM (per 1000 views)">
+        <input type="number" id="totalViews" placeholder="Total Views on Video">
+        <select id="customCurrency">
+          <option value="$">$ (USD)</option>
+          <option value="₹">₹ (INR)</option>
+        </select>
+      </div>
+      <div class="result-box" style="margin-top: 1rem;">
+        Estimated Revenue:<br><span id="customRevenue">—</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rpmInput = document.getElementById('rpmInput');
+    const currencySelect = document.getElementById('currency');
+
+    const viewRanges = {
+      v1k: 1000,
+      v10k: 10000,
+      v100k: 100000,
+      v1m: 1000000,
+      v10m: 10000000,
+      v100m: 100000000,
+      v1b: 1000000000
+    };
+
+    function updateProjections() {
+      const rpm = parseFloat(rpmInput.value);
+      const symbol = currencySelect.value;
+      if (!rpm || rpm <= 0) return;
+
+      Object.entries(viewRanges).forEach(([cls, views]) => {
+        const amount = (rpm * views) / 1000;
+        document.querySelector(`.${cls}`).textContent = `${symbol} ${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      });
+    }
+
+    rpmInput.addEventListener('input', updateProjections);
+    currencySelect.addEventListener('change', updateProjections);
+
+    // Custom Calculator
+    const customRPM = document.getElementById('customRPM');
+    const totalViews = document.getElementById('totalViews');
+    const customCurrency = document.getElementById('customCurrency');
+    const customRevenue = document.getElementById('customRevenue');
+
+    function updateCustomRevenue() {
+      const rpm = parseFloat(customRPM.value);
+      const views = parseFloat(totalViews.value);
+      const symbol = customCurrency.value;
+      if (!rpm || !views || rpm <= 0 || views <= 0) return;
+
+      const revenue = (rpm * views) / 1000;
+      customRevenue.textContent = `${symbol} ${revenue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    }
+
+    customRPM.addEventListener('input', updateCustomRevenue);
+    totalViews.addEventListener('input', updateCustomRevenue);
+    customCurrency.addEventListener('change', updateCustomRevenue);
+  </script>
+</body>
+</html>
