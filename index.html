@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FD Interest Calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FD Compound Interest Calculator</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -14,7 +14,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 900px;
       margin: auto;
     }
 
@@ -23,182 +23,213 @@
       margin-bottom: 2rem;
       font-size: 1.8rem;
       font-weight: 600;
-      color: #1c1c1e;
     }
 
-    .fd-header, .fd-row {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 1rem;
-      align-items: start;
-    }
-
-    .fd-header {
-      padding: 1rem;
-      border-radius: 12px;
-      background: #ececec;
-      font-weight: 500;
-      color: #555;
-      margin-bottom: 1rem;
-    }
-
-    .fd-row {
+    .card {
       background: #fff;
-      padding: 1rem;
-      margin-bottom: 1.2rem;
+      padding: 1.5rem;
       border-radius: 12px;
       box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-      transition: box-shadow 0.3s ease;
-    }
-
-    .fd-row:hover {
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    }
-
-    .fd-field {
+      margin-bottom: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 1.2rem;
     }
 
-    .fd-field input {
-      padding: 0.55rem 0.75rem;
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .field {
+      flex: 1;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+      color: #555;
+    }
+
+    .field input {
+      padding: 0.6rem 0.75rem;
       font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 8px;
       background-color: #fafafa;
-      transition: border 0.2s;
     }
 
-    .fd-field input:focus {
+    .field input:focus {
       outline: none;
       border-color: #007aff;
       background-color: #fff;
     }
 
-    .result {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .result-box {
+      background: #f9f9fa;
+      padding: 0.75rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .result-box span {
+      display: block;
       font-weight: 600;
-      font-size: 1.05rem;
       color: #007aff;
     }
 
-    .row-actions {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .actions {
+      text-align: right;
+      margin-top: 0.5rem;
     }
 
-    .row-actions button {
-      background: #dfe3e8;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
+    .btn {
+      padding: 0.5rem 1.2rem;
       font-size: 0.9rem;
-      transition: background 0.2s;
+      border-radius: 8px;
+      border: none;
+      background: #007aff;
+      color: white;
+      cursor: pointer;
+      margin-left: 0.5rem;
     }
 
-    .row-actions button:hover {
-      background: #c9ccd1;
+    .btn:hover {
+      background: #005fd1;
     }
 
     #add-row {
       display: block;
       margin: 2rem auto 0;
-      padding: 0.75rem 2rem;
       font-size: 1rem;
-      background: #007aff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,122,255,0.2);
-      transition: background 0.3s;
+      padding: 0.75rem 2rem;
     }
 
-    #add-row:hover {
-      background: #005fd1;
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.95rem;
     }
 
-    @media (max-width: 768px) {
-      .fd-header, .fd-row {
-        grid-template-columns: 1fr;
-      }
-      .row-actions {
-        justify-content: flex-start;
-      }
+    footer a {
+      color: #007aff;
+      margin: 0 0.5rem;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>FD Compound Interest Calculator</h1>
-
-    <div class="fd-header">
-      <div>Principal</div>
-      <div>Rate (%)</div>
-      <div>Time (Years)</div>
-      <div>Total</div>
-      <div>Actions</div>
-    </div>
-
-    <div id="fd-container"></div>
-    <button id="add-row">+ Add FD</button>
+    <div id="cards-container"></div>
+    <button id="add-row" class="btn">+ Add FD</button>
+    <footer>
+      <a href="/mileage.html">Mileage Calculator</a> |
+      <a href="/rent.html">Rent Calculator</a>
+    </footer>
   </div>
 
   <script>
+    function formatNumber(num) {
+      return new Intl.NumberFormat('en-IN').format(num);
+    }
+
+    function unformatNumber(str) {
+      return parseFloat(str.toString().replace(/,/g, '')) || 0;
+    }
+
     function calculateCompoundInterest(P, R, T) {
       const N = 1;
       return P * Math.pow((1 + (R / (100 * N))), N * T);
     }
 
-    function createFDRow(data = {}) {
-      const row = document.createElement('div');
-      row.className = 'fd-row';
+    function createCard(data = {}) {
+      const card = document.createElement('div');
+      card.className = 'card';
 
-      const principal = data.principal || '';
-      const rate = data.rate || '';
-      const time = data.time || '';
+      card.innerHTML = `
+        <div class="row">
+          <div class="field">
+            <label>Principal</label>
+            <input type="text" class="principal" value="${data.principal || ''}">
+          </div>
+          <div class="field">
+            <label>Rate (%)</label>
+            <input type="text" class="rate" value="${data.rate || ''}">
+          </div>
+          <div class="field">
+            <label>Time (Years)</label>
+            <input type="text" class="time" value="${data.time || ''}">
+          </div>
+        </div>
 
-      row.innerHTML = `
-        <div class="fd-field"><input type="number" class="principal" placeholder="Principal" value="${principal}" /></div>
-        <div class="fd-field"><input type="number" class="rate" placeholder="Rate (%)" step="0.01" value="${rate}" /></div>
-        <div class="fd-field"><input type="number" class="time" placeholder="Time (Years)" value="${time}" /></div>
-        <div class="result">₹ 0.00</div>
-        <div class="row-actions"><button class="duplicate-btn">Duplicate</button></div>
+        <div class="results">
+          <div class="result-box">Original Principal: <span class="principal-copy">₹0</span></div>
+          <div class="result-box">Interest Earned: <span class="interest-result">₹0</span></div>
+          <div class="result-box">Total Value: <span class="total-result">₹0</span></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn duplicate">Duplicate</button>
+          <button class="btn remove">Remove</button>
+        </div>
       `;
 
-      row.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', () => updateRowResult(row));
+      card.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+          const rawValue = unformatNumber(input.value);
+          input.dataset.raw = rawValue;
+          updateCard(card);
+        });
+
+        input.addEventListener('blur', () => {
+          const raw = input.dataset.raw || input.value;
+          input.value = formatNumber(raw);
+        });
       });
 
-      row.querySelector('.duplicate-btn').addEventListener('click', () => {
-        const P = row.querySelector('.principal').value;
-        const R = row.querySelector('.rate').value;
-        const T = row.querySelector('.time').value;
-        createFDRow({ principal: P, rate: R, time: T });
+      card.querySelector('.duplicate').addEventListener('click', () => {
+        const principal = card.querySelector('.principal').value;
+        const rate = card.querySelector('.rate').value;
+        const time = card.querySelector('.time').value;
+        createCard({ principal, rate, time });
       });
 
-      document.getElementById('fd-container').appendChild(row);
-      updateRowResult(row);
+      card.querySelector('.remove').addEventListener('click', () => {
+        card.remove();
+      });
+
+      document.getElementById('cards-container').appendChild(card);
+      updateCard(card);
     }
 
-    function updateRowResult(row) {
-      const P = parseFloat(row.querySelector('.principal').value) || 0;
-      const R = parseFloat(row.querySelector('.rate').value) || 0;
-      const T = parseFloat(row.querySelector('.time').value) || 0;
+    function updateCard(card) {
+      const P = unformatNumber(card.querySelector('.principal').value);
+      const R = unformatNumber(card.querySelector('.rate').value);
+      const T = unformatNumber(card.querySelector('.time').value);
 
-      const result = calculateCompoundInterest(P, R, T);
-      row.querySelector('.result').textContent = `₹ ${result.toFixed(2)}`;
+      const total = calculateCompoundInterest(P, R, T);
+      const interest = total - P;
+
+      card.querySelector('.principal-copy').textContent = `₹${formatNumber(P.toFixed(2))}`;
+      card.querySelector('.interest-result').textContent = `₹${formatNumber(interest.toFixed(2))}`;
+      card.querySelector('.total-result').textContent = `₹${formatNumber(total.toFixed(2))}`;
     }
 
-    document.getElementById('add-row').addEventListener('click', () => createFDRow());
+    document.getElementById('add-row').addEventListener('click', () => createCard());
 
-    // Initialize with one row
-    createFDRow();
+    createCard();
   </script>
 </body>
 </html>
